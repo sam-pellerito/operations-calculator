@@ -356,6 +356,65 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
   $id('contactMail').addEventListener('click', (e)=>{ e.preventDefault(); location.href='mailto:?subject=Interested%20in%20CPG%20calculator&body=Hi%2C%0A%0AI%27d%20like%20to%20learn%20more.' })
 });
+
+  const SHEET_NAME = 'Logs';
+
+function doGet(e){
+  return ContentService
+    .createTextOutput(JSON.stringify({ok:true, message:'Use POST'}))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e){
+  try {
+    // Accept JSON body (when sent server-side) or form-encoded fields from browser
+    let payload = {};
+    if (e.postData && e.postData.type === 'application/json') {
+      payload = JSON.parse(e.postData.contents || '{}');
+    } else {
+      // form-encoded: e.parameters or e.parameter
+      payload = e.parameter && Object.keys(e.parameter).length ? e.parameter : (e.parameters || {});
+      // normalize single-value arrays
+      for (const k in payload) {
+        if (Array.isArray(payload[k]) && payload[k].length === 1) payload[k] = payload[k][0];
+      }
+    }
+
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName(SHEET_NAME) || ss.insertSheet(SHEET_NAME);
+
+    const headers = ['Timestamp','CurrentRevenue','CurrentMarginPct','AOV','Savings','ReinvestmentRate',
+                     'MarketingROI','ContributionMarginPct','DeltaRevenue','NewRevenue','DeltaContribution','NewMarginPct','Notes'];
+    if (sheet.getLastRow() === 0) sheet.appendRow(headers);
+
+    const row = [
+      new Date(),
+      payload.currentRevenue || '',
+      payload.currentMarginPct || '',
+      payload.aov || '',
+      payload.savings || '',
+      payload.reinvestmentRate || '',
+      payload.marketingROI || '',
+      payload.contributionMarginPct || '',
+      payload.deltaRevenue || payload.deltaR || '',
+      payload.newRevenue || '',
+      payload.deltaContribution || '',
+      payload.newMarginPct || '',
+      payload.notes || ''
+    ];
+    sheet.appendRow(row);
+
+    return ContentService
+      .createTextOutput(JSON.stringify({ok:true, rowAdded:true}))
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } catch (err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ok:false, error: err.toString()}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
 </script>
 </body>
 </html>
