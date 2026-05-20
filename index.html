@@ -3,172 +3,201 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>CPG Savings → Marketing Impact Calculator</title>
+<title>CPG Savings → CPA & Margin Impact Calculator</title>
 <style>
-  :root{--bg:#f8fafb;--card:#ffffff;--accent:#0f6fff;--muted:#6b7280}
-  body{font-family:Inter,ui-sans-serif,system-ui,Arial,sans-serif;background:var(--bg);margin:0;color:#0f1724}
-  .container{max-width:980px;margin:36px auto;padding:20px}
+  /* Branding: Helvetica, slight green accent */
+  @font-face { font-family: HelveticaFallback; src: local("Helvetica"), local("Arial"); }
+  :root{--bg:#f6fbf8;--card:#fff;--accent:#0f9d58;--muted:#54606a;--shadow:0 6px 18px rgba(12,16,24,0.06)}
+  html,body{height:100%;margin:0;font-family:HelveticaFallback, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;background:var(--bg);color:#0b1220}
+  .wrap{max-width:980px;margin:36px auto;padding:20px}
   header{display:flex;gap:16px;align-items:center}
-  header img{width:84px;height:84px;object-fit:cover;border-radius:8px}
-  h1{margin:0;font-size:20px}
+  header img.logo{width:88px;height:88px;border-radius:10px;object-fit:cover;box-shadow:var(--shadow)}
+  h1{margin:0;font-size:22px}
   p.lead{margin:6px 0 18px;color:var(--muted)}
   .grid{display:grid;grid-template-columns:1fr 360px;gap:18px}
-  .card{background:var(--card);padding:18px;border-radius:10px;box-shadow:0 1px 4px rgba(12,16,24,0.06)}
+  .card{background:var(--card);padding:18px;border-radius:12px;box-shadow:var(--shadow)}
   label{display:block;font-size:13px;color:var(--muted);margin-top:10px}
-  input[type="number"],input[type="text"],select{width:100%;padding:8px;border:1px solid #e6e9ee;border-radius:6px;margin-top:6px}
-  .row{display:flex;gap:10px}
-  .btn{background:var(--accent);color:#fff;padding:10px 14px;border-radius:8px;border:0;cursor:pointer;margin-top:12px}
+  input[type="number"],input[type="text"],select{width:100%;padding:9px;border:1px solid #e6eef0;border-radius:8px;margin-top:6px;font-size:14px}
+  .btn{background:var(--accent);color:#fff;padding:10px 14px;border-radius:9px;border:0;cursor:pointer;font-weight:600}
+  .btn.ghost{background:transparent;color:var(--muted);border:1px solid #e6eef0}
   .muted{color:var(--muted);font-size:13px}
-  .result{font-weight:600;font-size:16px;margin:8px 0}
+  .result{font-weight:700;font-size:16px;margin:8px 0}
   .history{max-height:300px;overflow:auto;margin-top:8px}
-  .history-item{border-top:1px dashed #eef2ff;padding:8px 0}
-  .small{font-size:12px;color:var(--muted)}
-  .actions{display:flex;gap:8px;flex-wrap:wrap}
-  footer{margin-top:16px;text-align:center;color:var(--muted);font-size:13px}
-  @media(max-width:860px){.grid{grid-template-columns:1fr}.container{padding:12px}}
+  .history-item{border-top:1px dashed #eef6ee;padding:8px 0}
+  .small{font-size:13px;color:var(--muted)}
+  footer{margin-top:18px;text-align:center;color:var(--muted);font-size:13px}
+  .accent-line{height:4px;background:linear-gradient(90deg,var(--accent),#2bb673);border-radius:6px;margin:12px 0}
+  @media(max-width:900px){.grid{grid-template-columns:1fr}.wrap{padding:12px}}
 </style>
 </head>
 <body>
-  <div class="container">
+  <div class="wrap">
     <header>
-      <img src="https://images.unsplash.com/photo-1542831371-d531d36971e6?w=800&q=60&auto=format&fit=crop" alt="CPG product">
+      <img class="logo" src="https://images.unsplash.com/photo-1581093588401-1868b3f7d6c9?w=800&q=60&auto=format&fit=crop" alt="manufacturing scene">
       <div>
-        <h1>CPG Savings → Marketing Impact</h1>
-        <p class="lead">Estimate how one-time operational savings reinvested into marketing affects revenue and margin.</p>
+        <h1>CPG Savings → CPA & Margin Impact</h1>
+        <p class="lead">Estimate how a one-time operational savings reinvested into marketing affects customer acquisition cost and margin — useful for owners, operators, and students.</p>
       </div>
     </header>
 
-    <div class="grid" style="margin-top:14px">
-      <div class="card">
-        <div>
-          <label>Current Revenue (annual) $</label>
-          <input id="currentRevenue" type="number" step="0.01" value="1000000">
+    <div class="accent-line" aria-hidden="true"></div>
 
-          <label>Current Margin (%)</label>
-          <input id="currentMarginPct" type="number" step="0.01" value="30">
-
-          <label>Average Order Value (AOV) $</label>
-          <input id="aov" type="number" step="0.01" value="45">
-
-          <label>Savings Amount $ (one-time)</label>
-          <input id="savings" type="number" step="0.01" value="50000">
-
-          <label>Reinvestment Rate (portion of savings to marketing) %</label>
-          <input id="reinvestmentRate" type="number" step="0.01" value="50">
-
-          <label>Marketing ROI (revenue per $1 spent)</label>
-          <input id="marketingROI" type="number" step="0.01" value="3">
-
-          <label>Contribution Margin (%) on incremental revenue</label>
-          <input id="contributionMarginPct" type="number" step="0.01" value="40">
-
-          <label>Notes (optional)</label>
-          <input id="notes" type="text" placeholder="Context or campaign notes">
-
-          <div style="display:flex;gap:10px;align-items:center;margin-top:12px">
-            <button id="calcBtn" class="btn">Calculate</button>
-            <button id="clearBtn" style="background:#e6e9ee;border-radius:8px;padding:10px 12px;border:0;cursor:pointer">Clear Inputs</button>
+    <div class="grid">
+      <div class="card" role="region" aria-label="Calculator">
+        <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px">
+          <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=60&auto=format&fit=crop" alt="assembly line" style="width:110px;height:70px;object-fit:cover;border-radius:8px">
+          <div>
+            <div style="font-weight:700">One-time savings reinvestment model</div>
+            <div class="small">All calculations are one-time. Use Google Sheet logging or local history.</div>
           </div>
+        </div>
+
+        <label>Current Revenue (annual) $</label>
+        <input id="currentRevenue" type="number" step="0.01" value="1000000">
+
+        <label>Current Margin (%)</label>
+        <input id="currentMarginPct" type="number" step="0.01" value="30">
+
+        <label>Average Order Value (AOV) $</label>
+        <input id="aov" type="number" step="0.01" value="45">
+
+        <label>Current Cost Per Acquisition (CPA) $</label>
+        <input id="currentCPA" type="number" step="0.01" value="20">
+
+        <label>Savings Amount $ (one-time)</label>
+        <input id="savings" type="number" step="0.01" value="50000">
+
+        <label>Reinvestment Rate (%)</label>
+        <input id="reinvestmentRate" type="number" step="0.01" value="50">
+
+        <label>Marketing ROI (revenue per $1 spent)</label>
+        <input id="marketingROI" type="number" step="0.01" value="3">
+
+        <label>Contribution Margin (%) on incremental revenue</label>
+        <input id="contributionMarginPct" type="number" step="0.01" value="40">
+
+        <label>Notes (optional)</label>
+        <input id="notes" type="text" placeholder="Context or campaign notes">
+
+        <div style="display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap">
+          <button id="calcBtn" class="btn">Calculate</button>
+          <button id="clearBtn" class="btn ghost">Clear inputs</button>
         </div>
 
         <div id="results" style="margin-top:14px;display:none">
           <div class="result" id="deltaRevenueTxt"></div>
+          <div class="small" id="deltaCustomersTxt"></div>
+          <div class="small" id="incrementalCpaTxt"></div>
+          <div class="small" id="newAvgCpaTxt"></div>
           <div class="small" id="deltaContributionTxt"></div>
           <div class="small" id="newRevenueTxt"></div>
           <div class="small" id="newMarginTxt"></div>
 
-          <div style="margin-top:12px" class="actions">
-            <button id="saveLocal" class="btn" style="background:#10b981">Save locally</button>
-            <button id="sendLog" class="btn" style="background:#0ea5e9">Send to Google Sheet</button>
+          <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+            <button id="saveLocal" class="btn" style="background:#2bb673">Save locally</button>
+            <button id="sendLog" class="btn" style="background:#39a0d0">Send to Google Sheet</button>
             <button id="exportCsv" class="btn" style="background:#6b7280">Export CSV</button>
             <a id="mailtoLink" class="btn" style="background:#7c3aed;text-decoration:none;color:#fff" href="#">Email results</a>
           </div>
         </div>
 
-        <div style="margin-top:12px">
+        <div style="margin-top:14px">
           <h4 style="margin:8px 0 6px">Saved Calculations</h4>
           <div class="history" id="historyList">
             <div class="small">No saved calculations yet.</div>
           </div>
           <div style="margin-top:8px">
-            <button id="clearHistory" style="background:#fee2e2;color:#9b1c1c;padding:8px 10px;border-radius:8px;border:0;cursor:pointer">Delete All Saved</button>
+            <button id="clearHistory" class="btn ghost" style="background:#feeae6;color:#9b1c1c;border:0">Delete All Saved</button>
           </div>
         </div>
       </div>
 
-      <aside class="card">
-        <h3 style="margin-top:0">How the math works</h3>
+      <aside class="card" role="note">
+        <h3 style="margin-top:0">How the math works (one-time)</h3>
         <div class="small" style="line-height:1.5">
-          Formula (one-time event):
-          1) Marketing budget from savings B = S * r
-          2) Additional revenue ΔR = B * mROI
-          3) New revenue R1 = R0 + ΔR
-          4) Incremental contribution ΔContribution = ΔR * cm
-          5) New margin % ≈ (R0*M0 + ΔContribution) / R1
+          B = S * r (marketing budget from savings)
+          <br>ΔR = B * mROI (additional revenue)
+          <br>ΔC = ΔR / AOV (additional customers)
+          <br>incremental CPA ≈ AOV / mROI
+          <br>current customers C0 = R0 / AOV
+          <br>new avg CPA = (C0 * currentCPA + B) / (C0 + ΔC)
+          <br>ΔContribution = ΔR * cm
+          <br>new margin % ≈ (R0*M0 + ΔContribution) / (R0 + ΔR)
         </div>
 
         <hr style="margin:12px 0">
 
-        <h4 style="margin-bottom:6px">Quick tips</h4>
+        <h4 style="margin-bottom:6px">Quick guidance</h4>
         <ul class="small" style="padding-left:18px">
-          <li>This model assumes one-time reinvestment.</li>
-          <li>Use contribution margin for incremental profit impact.</li>
-          <li>Local saves persist only in this browser/device.</li>
+          <li>If incremental CPA (AOV/mROI) &lt; current CPA, new customers are cheaper than today's average.</li>
+          <li>Form-encoded logging posts to your Google Sheet (set endpoint below).</li>
+          <li>Local saves persist only on this device.</li>
         </ul>
 
-        <hr style="margin:12px 0">
-
-        <div style="display:flex;gap:8px;flex-direction:column">
-          <a href="#" id="demoEmail" style="text-decoration:none" class="btn">Contact (mailto)</a>
-          <a href="#" style="text-decoration:none;background:#efefef;color:#111;padding:10px;border-radius:8px;text-align:center" onclick="window.scrollTo(0,0)">Back to top</a>
+        <div style="display:flex;gap:8px;flex-direction:column;margin-top:12px">
+          <a id="contactMail" href="#" class="btn" style="background:var(--accent);text-decoration:none">Contact (mailto)</a>
         </div>
       </aside>
     </div>
 
     <footer>
-      <div class="small">Built for CPG owners, operators, and students — simple, one-time scenario estimates.</div>
+      <div class="small">Designed for CPG teams — manufacturing imagery and simple outputs to support planning and selling a vision.</div>
     </footer>
   </div>
 
 <script>
-// CONFIG: paste your Apps Script Web App URL here (or leave empty to disable server logging)
+/* CONFIG: put your Apps Script Web App URL (deployed as "Execute as: Me" and access "Anyone, even anonymous") */
 const LOG_ENDPOINT = ''; // e.g. 'https://script.google.com/macros/s/XXXX/exec'
 
 function $id(id){return document.getElementById(id)}
-function toNum(v){return Number(v) || 0}
+function toNum(v){return Number(v)||0}
 function pctToDecimal(p){return toNum(p)/100}
 
 function calculate(inputs){
-  // Inputs: R0, M0_pct, AOV, S, r_pct, mROI, cm_pct
   const R0 = toNum(inputs.currentRevenue)
   const M0 = pctToDecimal(inputs.currentMarginPct)
+  const AOV = toNum(inputs.aov)
+  const currentCPA = toNum(inputs.currentCPA)
   const S = toNum(inputs.savings)
   const r = pctToDecimal(inputs.reinvestmentRate)
   const mROI = toNum(inputs.marketingROI)
   const cm = pctToDecimal(inputs.contributionMarginPct)
 
-  const B = S * r
-  const deltaR = B * mROI
-  const newRevenue = R0 + deltaR
+  const B = S * r                  // marketing budget from savings
+  const deltaR = B * mROI          // additional revenue
+  const deltaCustomers = AOV ? (deltaR / AOV) : 0
+  const incrementalCPA = mROI ? (AOV / mROI) : 0  // spend per new customer implied by ROI
+  const C0 = AOV ? (R0 / AOV) : 0
+  const currentTotalAcqSpend = C0 * currentCPA
+  const newTotalAcqSpend = currentTotalAcqSpend + B
+  const newTotalCustomers = C0 + deltaCustomers
+  const newAvgCPA = newTotalCustomers ? (newTotalAcqSpend / newTotalCustomers) : 0
+
   const deltaContribution = deltaR * cm
+  const newRevenue = R0 + deltaR
   const newMarginPct = newRevenue ? ((R0 * M0 + deltaContribution) / newRevenue) * 100 : 0
 
-  return {B, deltaR, newRevenue, deltaContribution, newMarginPct}
+  return {
+    B, deltaR, deltaCustomers, incrementalCPA, C0,
+    currentTotalAcqSpend, newTotalAcqSpend, newTotalCustomers, newAvgCPA,
+    deltaContribution, newRevenue, newMarginPct
+  }
 }
 
+/* History localStorage helpers */
 function loadHistory(){
   const raw = localStorage.getItem('cpg_calc_history')
-  let list = raw ? JSON.parse(raw) : []
+  const list = raw ? JSON.parse(raw) : []
   const container = $id('historyList')
   container.innerHTML = ''
   if(!list.length){ container.innerHTML = '<div class="small">No saved calculations yet.</div>'; return }
-  list.slice().reverse().forEach((item, idx)=>{
+  list.slice().reverse().forEach(item=>{
     const el = document.createElement('div')
     el.className = 'history-item'
     el.innerHTML = `<div class="small">${new Date(item.timestamp).toLocaleString()}</div>
-      <div class="small">ΔRevenue: $${Number(item.deltaR).toLocaleString()}</div>
-      <div class="small">New Revenue: $${Number(item.newRevenue).toLocaleString()}</div>
-      <div class="small">New Margin: ${Number(item.newMarginPct).toFixed(2)}%</div>`
+      <div style="font-weight:600">ΔR: $${Number(item.deltaR).toLocaleString()}</div>
+      <div class="small">ΔCustomers: ${Number(item.deltaCustomers).toLocaleString()}</div>
+      <div class="small">New Avg CPA: $${Number(item.newAvgCPA).toFixed(2)}</div>`
     container.appendChild(el)
   })
 }
@@ -185,7 +214,7 @@ function exportCSV(){
   const raw = localStorage.getItem('cpg_calc_history')
   const list = raw ? JSON.parse(raw) : []
   if(!list.length){ alert('No saved records to export'); return }
-  const header = ['Timestamp','CurrentRevenue','CurrentMarginPct','AOV','Savings','ReinvestmentRate','MarketingROI','ContributionMarginPct','DeltaRevenue','NewRevenue','DeltaContribution','NewMarginPct','Notes']
+  const header = ['Timestamp','CurrentRevenue','CurrentMarginPct','AOV','CurrentCPA','Savings','ReinvestmentRate','MarketingROI','ContributionMarginPct','DeltaRevenue','DeltaCustomers','IncrementalCPA','NewAvgCPA','DeltaContribution','NewRevenue','NewMarginPct','Notes']
   const rows = list.map(r => header.map(h => `"${(r[h.toLowerCase()]!==undefined? r[h.toLowerCase()]: r[h]) || ''}"`).join(','))
   const csv = [header.join(','), ...rows].join('\n')
   const blob = new Blob([csv], {type:'text/csv'})
@@ -197,6 +226,7 @@ function exportCSV(){
   URL.revokeObjectURL(url)
 }
 
+/* Event wiring */
 document.addEventListener('DOMContentLoaded', ()=>{
   loadHistory()
 
@@ -205,6 +235,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       currentRevenue: $id('currentRevenue').value,
       currentMarginPct: $id('currentMarginPct').value,
       aov: $id('aov').value,
+      currentCPA: $id('currentCPA').value,
       savings: $id('savings').value,
       reinvestmentRate: $id('reinvestmentRate').value,
       marketingROI: $id('marketingROI').value,
@@ -212,35 +243,24 @@ document.addEventListener('DOMContentLoaded', ()=>{
       notes: $id('notes').value
     }
     const out = calculate(inputs)
+
     $id('results').style.display = 'block'
     $id('deltaRevenueTxt').textContent = `Estimated additional revenue (ΔR): $${out.deltaR.toLocaleString(undefined,{maximumFractionDigits:2})}`
+    $id('deltaCustomersTxt').textContent = `Estimated additional customers (ΔC): ${out.deltaCustomers.toLocaleString(undefined,{maximumFractionDigits:2})}`
+    $id('incrementalCpaTxt').textContent = `Incremental CPA implied by ROI: $${out.incrementalCPA.toFixed(2)} (AOV / mROI)`
+    $id('newAvgCpaTxt').textContent = `Projected new average CPA: $${out.newAvgCPA.toFixed(2)}`
     $id('deltaContributionTxt').textContent = `Incremental contribution: $${out.deltaContribution.toLocaleString(undefined,{maximumFractionDigits:2})}`
     $id('newRevenueTxt').textContent = `Projected new revenue: $${out.newRevenue.toLocaleString(undefined,{maximumFractionDigits:2})}`
     $id('newMarginTxt').textContent = `Projected new margin: ${out.newMarginPct.toFixed(2)}%`
 
-    // Prepare a record object with consistent keys for storage/export
-    const record = {
-      timestamp: new Date().toISOString(),
-      currentRevenue: inputs.currentRevenue,
-      currentMarginPct: inputs.currentMarginPct,
-      aov: inputs.aov,
-      savings: inputs.savings,
-      reinvestmentRate: inputs.reinvestmentRate,
-      marketingROI: inputs.marketingROI,
-      contributionMarginPct: inputs.contributionMarginPct,
-      deltaR: out.deltaR,
-      newRevenue: out.newRevenue,
-      deltaContribution: out.deltaContribution,
-      newMarginPct: out.newMarginPct,
-      notes: inputs.notes
-    }
-
-    // Prepare mailto link
+    // mailto
     const subject = encodeURIComponent('CPG Calculator Result')
     const body = encodeURIComponent(
       `Result timestamp: ${new Date().toLocaleString()}\n` +
       `ΔR: $${out.deltaR.toFixed(2)}\n` +
-      `New Revenue: $${out.newRevenue.toFixed(2)}\n` +
+      `ΔC: ${out.deltaCustomers.toFixed(2)}\n` +
+      `Incremental CPA: $${out.incrementalCPA.toFixed(2)}\n` +
+      `New Avg CPA: $${out.newAvgCPA.toFixed(2)}\n` +
       `New Margin: ${out.newMarginPct.toFixed(2)}%\n` +
       `Notes: ${inputs.notes}`
     )
@@ -248,12 +268,12 @@ document.addEventListener('DOMContentLoaded', ()=>{
   })
 
   $id('saveLocal').addEventListener('click', ()=>{
-    // re-run calc to ensure results present
     $id('calcBtn').click()
     const rawInputs = {
       currentRevenue: $id('currentRevenue').value,
       currentMarginPct: $id('currentMarginPct').value,
       aov: $id('aov').value,
+      currentCPA: $id('currentCPA').value,
       savings: $id('savings').value,
       reinvestmentRate: $id('reinvestmentRate').value,
       marketingROI: $id('marketingROI').value,
@@ -266,13 +286,17 @@ document.addEventListener('DOMContentLoaded', ()=>{
       currentRevenue: rawInputs.currentRevenue,
       currentMarginPct: rawInputs.currentMarginPct,
       aov: rawInputs.aov,
+      currentCPA: rawInputs.currentCPA,
       savings: rawInputs.savings,
       reinvestmentRate: rawInputs.reinvestmentRate,
       marketingROI: rawInputs.marketingROI,
       contributionMarginPct: rawInputs.contributionMarginPct,
       deltaR: out.deltaR,
-      newRevenue: out.newRevenue,
+      deltaCustomers: out.deltaCustomers,
+      incrementalCPA: out.incrementalCPA,
+      newAvgCPA: out.newAvgCPA,
       deltaContribution: out.deltaContribution,
+      newRevenue: out.newRevenue,
       newMarginPct: out.newMarginPct,
       notes: rawInputs.notes
     }
@@ -286,6 +310,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       currentRevenue: $id('currentRevenue').value,
       currentMarginPct: $id('currentMarginPct').value,
       aov: $id('aov').value,
+      currentCPA: $id('currentCPA').value,
       savings: $id('savings').value,
       reinvestmentRate: $id('reinvestmentRate').value,
       marketingROI: $id('marketingROI').value,
@@ -293,25 +318,30 @@ document.addEventListener('DOMContentLoaded', ()=>{
       notes: $id('notes').value
     }
     const out = calculate(rawInputs)
-    const payload = {
+    const params = new URLSearchParams({
       currentRevenue: rawInputs.currentRevenue,
       currentMarginPct: rawInputs.currentMarginPct,
       aov: rawInputs.aov,
+      currentCPA: rawInputs.currentCPA,
       savings: rawInputs.savings,
       reinvestmentRate: rawInputs.reinvestmentRate,
       marketingROI: rawInputs.marketingROI,
       contributionMarginPct: rawInputs.contributionMarginPct,
       deltaRevenue: out.deltaR,
-      newRevenue: out.newRevenue,
+      deltaCustomers: out.deltaCustomers,
+      incrementalCPA: out.incrementalCPA,
+      newAvgCPA: out.newAvgCPA,
       deltaContribution: out.deltaContribution,
+      newRevenue: out.newRevenue,
       newMarginPct: out.newMarginPct,
       notes: rawInputs.notes
-    }
+    }).toString()
+
     try {
       const res = await fetch(LOG_ENDPOINT, {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify(payload)
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params
       })
       const json = await res.json()
       if(json && json.ok){ alert('Logged to Google Sheet.') } else { alert('Server response error: ' + JSON.stringify(json)) }
@@ -321,16 +351,10 @@ document.addEventListener('DOMContentLoaded', ()=>{
   })
 
   $id('exportCsv').addEventListener('click', exportCSV)
-  $id('clearBtn').addEventListener('click', ()=>{ ['currentRevenue','currentMarginPct','aov','savings','reinvestmentRate','marketingROI','contributionMarginPct','notes'].forEach(id=> $id(id).value=''); $id('results').style.display='none' })
-  $id('clearHistory').addEventListener('click', ()=>{
-    if(confirm('Delete all locally saved calculations?')){ localStorage.removeItem('cpg_calc_history'); loadHistory() }
-  })
+  $id('clearBtn').addEventListener('click', ()=>{ ['currentRevenue','currentMarginPct','aov','currentCPA','savings','reinvestmentRate','marketingROI','contributionMarginPct','notes'].forEach(id=> $id(id).value=''); $id('results').style.display='none' })
+  $id('clearHistory').addEventListener('click', ()=>{ if(confirm('Delete all locally saved calculations?')){ localStorage.removeItem('cpg_calc_history'); loadHistory() } })
 
-  // demo mailto (in sidebar)
-  $id('demoEmail').addEventListener('click', (e)=>{
-    e.preventDefault()
-    location.href = 'mailto:?subject=Interested%20in%20CPG%20calculator&body=Hi%2C%0A%0AI%27d%20like%20to%20learn%20more%20about%20this%20calculator.%0A%0AThanks.'
-  })
+  $id('contactMail').addEventListener('click', (e)=>{ e.preventDefault(); location.href='mailto:?subject=Interested%20in%20CPG%20calculator&body=Hi%2C%0A%0AI%27d%20like%20to%20learn%20more.' })
 });
 </script>
 </body>
